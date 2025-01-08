@@ -31,17 +31,6 @@ var UniversityError = /** @class */ (function (_super) {
     }
     return UniversityError;
 }(Error));
-var Role;
-(function (Role) {
-    Role["Student"] = "student";
-    Role["Teacher"] = "teacher";
-})(Role || (Role = {}));
-var StudentStatus;
-(function (StudentStatus) {
-    StudentStatus["Active"] = "active";
-    StudentStatus["Inactive"] = "inactive";
-    StudentStatus["Graduated"] = "graduated";
-})(StudentStatus || (StudentStatus = {}));
 var University = /** @class */ (function () {
     function University(name) {
         this.courses = [];
@@ -63,21 +52,21 @@ var University = /** @class */ (function () {
     };
     University.prototype.getAllPeopleByRole = function (role) {
         switch (role) {
-            case Role.Student:
-                return this.people.filter(function (person) { return person.role === Role.Student; });
-            case Role.Teacher:
-                return this.people.filter(function (person) { return person.role === Role.Teacher; });
+            case "student":
+                return this.people.filter(function (person) { return person.role === "student"; });
+            case "teacher":
+                return this.people.filter(function (person) { return person.role === "teacher"; });
             default:
                 return this.assertNeverRole(role);
         }
     };
     University.prototype.assertNeverRole = function (role) {
-        throw new Error("Unhandled role: ".concat(role)); // Виправлено
+        throw new Error("Unhandled role: ".concat(role));
     };
     return University;
 }());
 var Course = /** @class */ (function () {
-    function Course(name, discipline, credits) {
+    function Course(name, credits, discipline) {
         this.name = name;
         this.credits = credits;
         this.discipline = discipline;
@@ -106,13 +95,19 @@ var Group = /** @class */ (function () {
     };
     Group.prototype.getAverageGroupScore = function () {
         if (this.students.length === 0) {
-            return 0;
+            return 0; // No students in the group, so average score is 0
         }
         var totalScore = this.students.reduce(function (sum, student) { return sum + student.getAverageScore(); }, 0);
         return totalScore / this.students.length;
     };
     Group.prototype.getStudents = function () {
         return __spreadArray([], this.students, true);
+    };
+    Group.prototype.getStudentById = function (id) {
+        if (Array.isArray(id)) {
+            return this.students.filter(function (student) { return id.includes(student.id); });
+        }
+        return this.students.find(function (student) { return student.id === id; });
     };
     return Group;
 }());
@@ -129,7 +124,15 @@ var Person = /** @class */ (function () {
     }
     Object.defineProperty(Person.prototype, "fullName", {
         get: function () {
-            return "".concat(this.lastName, " ").concat(this.firstName);
+            return $;
+            {
+                this.lastName;
+            }
+            $;
+            {
+                this.firstName;
+            }
+            ;
         },
         enumerable: false,
         configurable: true
@@ -155,15 +158,14 @@ var Teacher = /** @class */ (function (_super) {
     __extends(Teacher, _super);
     function Teacher(info, specializations) {
         if (specializations === void 0) { specializations = []; }
-        var _this = _super.call(this, info, Role.Teacher) || this;
+        var _this = _super.call(this, info, "teacher") || this;
         _this.specializations = [];
         _this.courses = [];
         _this.specializations = specializations;
         return _this;
     }
     Teacher.prototype.assignCourse = function (course) {
-        this.courses.
-            push(course);
+        this.courses.push(course);
     };
     Teacher.prototype.removeCourse = function (courseName) {
         this.courses = this.courses.filter(function (course) { return course.name !== courseName; });
@@ -176,17 +178,17 @@ var Teacher = /** @class */ (function (_super) {
 var Student = /** @class */ (function (_super) {
     __extends(Student, _super);
     function Student(info) {
-        var _this = _super.call(this, info, Role.Student) || this;
+        var _this = _super.call(this, info, "student") || this;
         _this.academicPerformance = {
             totalCredits: 0,
             gpa: 0,
         };
         _this.enrolledCourses = [];
-        _this.status = StudentStatus.Active;
+        _this.status = "active";
         return _this;
     }
     Student.prototype.enrollCourse = function (course) {
-        if (this.status !== StudentStatus.Active) {
+        if (this.status !== "active") {
             throw new UniversityError("Cannot enroll: Student is not in active status");
         }
         this.enrolledCourses.push(course);
@@ -203,3 +205,7 @@ var Student = /** @class */ (function (_super) {
     };
     return Student;
 }(Person));
+var defaultContact = {
+    email: "info@university.com",
+    phone: "+380955555555",
+};
